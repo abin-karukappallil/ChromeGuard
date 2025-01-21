@@ -1,0 +1,139 @@
+/* General Body Styling */
+body {
+    font-family: 'Courier New', Courier, monospace;
+    margin: 0;
+    padding: 0;
+    color: #33ff33;
+    background-color: black;
+}
+
+/* Hacker-like Background */
+.hacker-background {
+    background: linear-gradient(to bottom, #000000, #001a00);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Container Styling */
+.container {
+    max-width: 800px;
+    padding: 20px;
+    background: #000000;
+    border: 2px solid #33ff33;
+    border-radius: 10px;
+    box-shadow: 0 0 20px #33ff33;
+    text-align: center;
+}
+
+/* Header */
+header h1 {
+    margin: 0;
+    font-size: 3rem;
+    text-transform: uppercase;
+    animation: flicker 1.5s infinite;
+}
+
+/* Glitch Effect for Header */
+.glitch {
+    color: #33ff33;
+    font-weight: bold;
+    position: relative;
+}
+
+.glitch::before,
+.glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    color: #33ff33;
+    background: black;
+    overflow: hidden;
+    clip: rect(0, 900px, 0, 0);
+    animation: glitch 2.5s infinite linear;
+}
+
+.glitch::before {
+    left: 2px;
+    text-shadow: -2px 0 red;
+    animation-delay: 0.3s;
+}
+
+.glitch::after {
+    left: -2px;
+    text-shadow: -2px 0 blue;
+    animation-delay: 0.6s;
+}
+
+/* Buttons */
+button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: bold;
+    background: #33ff33;
+    color: black;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+button:hover {
+    background: black;
+    color: #33ff33;
+    border: 2px solid #33ff33;
+}
+
+/* Input Box */
+input {
+    width: 80%;
+    padding: 10px;
+    margin: 10px 0;
+    font-size: 1rem;
+    border: 1px solid #33ff33;
+    border-radius: 5px;
+    background: black;
+    color: #33ff33;
+}
+
+/* Output Section */
+.output {
+    margin-top: 20px;
+    text-align: left;
+    border: 1px solid #33ff33;
+    padding: 10px;
+    background: black;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+/* Animations */
+@keyframes glitch {
+    0% {
+        clip: rect(42px, 9999px, 44px, 0);
+    }
+    25% {
+        clip: rect(64px, 9999px, 77px, 0);
+    }
+    50% {
+        clip: rect(88px, 9999px, 95px, 0);
+    }
+    75% {
+        clip: rect(12px, 9999px, 30px, 0);
+    }
+    100% {
+        clip: rect(42px, 9999px, 44px, 0);
+    }
+}
+
+@keyframes flicker {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.9;
+    }
+}

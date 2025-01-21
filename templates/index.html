@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChromeGuard - Extension Security Analyzer</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="hacker-background">
+        <div class="container">
+            <header>
+                <h1 class="glitch" data-text="ChromeGuard">ChromeGuard</h1>
+                <p>Your trusted tool to analyze browser extension security</p>
+            </header>
+            <main>
+                <form id="analyze-form" action="/analyze" method="POST">
+                    <label for="extension_path">Enter Extension Path:</label><br>
+                    <input type="text" id="extension_path" name="extension_path" placeholder="Enter the folder path to the extension" required>
+                    <button type="submit">Analyze</button>
+                </form>
+                <div id="results" class="output hidden">
+                    <h2>Analysis Results</h2>
+                    <p id="dangerous-permissions"></p>
+                    <p id="remote-scripts"></p>
+                    <p id="background-scripts"></p>
+                    <p id="suspicious-hosts"></p>
+                </div>
+            </main>
+            <footer>
+                <p>&copy; 2025 ChromeGuard | Secure Your Extensions</p>
+            </footer>
+        </div>
+    </div>
+    <script>
+        const form = document.getElementById('analyze-form');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();  // Prevent default form submission
+
+            const extensionPath = document.getElementById('extension_path').value;
+            const response = await fetch('/analyze', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ extension_path: extensionPath })
+            });
+
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.classList.remove('hidden');  // Show results section
+
+            if (response.ok) {
+                const results = await response.json();
+                
+                // Populate the results section with text output
+                document.getElementById('dangerous-permissions').innerText =
+                    `Dangerous Permissions: ${results["Dangerous Permissions"].length ? results["Dangerous Permissions"].join(", ") : "None"}`;
+                document.getElementById('remote-scripts').innerText =
+                    `Remote Scripts Detected: ${results["Remote Scripts Detected"].length ? results["Remote Scripts Detected"].map(s => s.js).join(", ") : "None"}`;
+                document.getElementById('background-scripts').innerText =
+                    `Background Scripts: ${results["Background Scripts"].length ? results["Background Scripts"].join(", ") : "None"}`;
+                document.getElementById('suspicious-hosts').innerText =
+                    `Suspicious Hosts: ${results["Suspicious Hosts"].length ? results["Suspicious Hosts"].join(", ") : "None"}`;
+            } else {
+                const error = await response.json();
+                resultsDiv.innerHTML = `<p class="error">${error.error || "An unknown error occurred."}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>
