@@ -14,31 +14,80 @@
                 <p>Your trusted tool to analyze browser extension security</p>
             </header>
             <main>
-                <!-- Updated Form -->
-                <form id="analyze-form" action="/" method="POST" enctype="multipart/form-data">
-                    <label for="file">Upload `manifest.json`:</label><br>
+                <form id="analyze-form">
+                    <label for="file">Upload manifest.json:</label><br>
                     <input type="file" id="file" name="file" accept=".json" required>
                     <button type="submit">Analyze</button>
                 </form>
-                <div id="results" class="output">
-                    {% if results %}
+                
+                <div id="results" class="output" style="display: none;">
                     <h2>Analysis Results</h2>
-                    <ul>
-                        <li><strong>Dangerous Permissions:</strong> {{ results["Dangerous Permissions"] }}</li>
-                        <li><strong>Remote Scripts Detected:</strong> {{ results["Remote Scripts Detected"] }}</li>
-                        <li><strong>Background Scripts:</strong> {{ results["Background Scripts"] }}</li>
-                        <li><strong>Suspicious Hosts:</strong> {{ results["Suspicious Hosts"] }}</li>
-                    </ul>
-                    {% endif %}
-                    {% if error %}
-                    <p class="error">{{ error }}</p>
-                    {% endif %}
+                    <div class="results-container">
+                        <div class="result-item">
+                            <h3>Dangerous Permissions</h3>
+                            <p id="dangerous-permissions"></p>
+                        </div>
+                        <div class="result-item">
+                            <h3>Remote Scripts</h3>
+                            <p id="remote-scripts"></p>
+                        </div>
+                        <div class="result-item">
+                            <h3>Background Scripts</h3>
+                            <p id="background-scripts"></p>
+                        </div>
+                        <div class="result-item">
+                            <h3>Suspicious Hosts</h3>
+                            <p id="suspicious-hosts"></p>
+                        </div>
+                    </div>
                 </div>
+
+                <div id="error-message" class="error-message" style="display: none;"></div>
             </main>
             <footer>
                 <p>&copy; 2025 ChromeGuard | Secure Your Extensions</p>
             </footer>
         </div>
     </div>
+
+    <script>
+        document.getElementById('analyze-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            const fileInput = document.getElementById('file');
+            formData.append('file', fileInput.files[0]);
+
+            try {
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('error-message').style.display = 'none';
+                    document.getElementById('results').style.display = 'block';
+                    
+                    document.getElementById('dangerous-permissions').textContent = 
+                        data["Dangerous Permissions"].length ? data["Dangerous Permissions"].join(", ") : "None";
+                    document.getElementById('remote-scripts').textContent = 
+                        data["Remote Scripts Detected"].length ? JSON.stringify(data["Remote Scripts Detected"]) : "None";
+                    document.getElementById('background-scripts').textContent = 
+                        data["Background Scripts"].length ? data["Background Scripts"].join(", ") : "None";
+                    document.getElementById('suspicious-hosts').textContent = 
+                        data["Suspicious Hosts"].length ? data["Suspicious Hosts"].join(", ") : "None";
+                } else {
+                    throw new Error(data.error || 'Analysis failed');
+                }
+            } catch (error) {
+                document.getElementById('results').style.display = 'none';
+                const errorDiv = document.getElementById('error-message');
+                errorDiv.style.display = 'block';
+                errorDiv.textContent = error.message;
+            }
+        });
+    </script>
 </body>
 </html>
