@@ -14,17 +14,25 @@
                 <p>Your trusted tool to analyze browser extension security</p>
             </header>
             <main>
-                <form id="analyze-form" action="/analyze" method="POST">
-                    <label for="extension_path">Enter Extension Path:</label><br>
-                    <input type="text" id="extension_path" name="extension_path" placeholder="Enter the folder path to the extension" required>
+                <!-- Updated Form -->
+                <form id="analyze-form" action="/" method="POST" enctype="multipart/form-data">
+                    <label for="file">Upload `manifest.json`:</label><br>
+                    <input type="file" id="file" name="file" accept=".json" required>
                     <button type="submit">Analyze</button>
                 </form>
-                <div id="results" class="output hidden">
+                <div id="results" class="output">
+                    {% if results %}
                     <h2>Analysis Results</h2>
-                    <p id="dangerous-permissions"></p>
-                    <p id="remote-scripts"></p>
-                    <p id="background-scripts"></p>
-                    <p id="suspicious-hosts"></p>
+                    <ul>
+                        <li><strong>Dangerous Permissions:</strong> {{ results["Dangerous Permissions"] }}</li>
+                        <li><strong>Remote Scripts Detected:</strong> {{ results["Remote Scripts Detected"] }}</li>
+                        <li><strong>Background Scripts:</strong> {{ results["Background Scripts"] }}</li>
+                        <li><strong>Suspicious Hosts:</strong> {{ results["Suspicious Hosts"] }}</li>
+                    </ul>
+                    {% endif %}
+                    {% if error %}
+                    <p class="error">{{ error }}</p>
+                    {% endif %}
                 </div>
             </main>
             <footer>
@@ -32,38 +40,5 @@
             </footer>
         </div>
     </div>
-    <script>
-        const form = document.getElementById('analyze-form');
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();  // Prevent default form submission
-
-            const extensionPath = document.getElementById('extension_path').value;
-            const response = await fetch('/analyze', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: new URLSearchParams({ extension_path: extensionPath })
-            });
-
-            const resultsDiv = document.getElementById('results');
-            resultsDiv.classList.remove('hidden');  // Show results section
-
-            if (response.ok) {
-                const results = await response.json();
-                
-                // Populate the results section with text output
-                document.getElementById('dangerous-permissions').innerText =
-                    `Dangerous Permissions: ${results["Dangerous Permissions"].length ? results["Dangerous Permissions"].join(", ") : "None"}`;
-                document.getElementById('remote-scripts').innerText =
-                    `Remote Scripts Detected: ${results["Remote Scripts Detected"].length ? results["Remote Scripts Detected"].map(s => s.js).join(", ") : "None"}`;
-                document.getElementById('background-scripts').innerText =
-                    `Background Scripts: ${results["Background Scripts"].length ? results["Background Scripts"].join(", ") : "None"}`;
-                document.getElementById('suspicious-hosts').innerText =
-                    `Suspicious Hosts: ${results["Suspicious Hosts"].length ? results["Suspicious Hosts"].join(", ") : "None"}`;
-            } else {
-                const error = await response.json();
-                resultsDiv.innerHTML = `<p class="error">${error.error || "An unknown error occurred."}</p>`;
-            }
-        });
-    </script>
 </body>
 </html>
